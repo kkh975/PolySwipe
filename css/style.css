@@ -1,0 +1,43 @@
+@charset "utf-8";
+
+/**
+ * @date 2013-07-04
+ * @author Koo Chi Hoon(kkh975@naver.com)
+ */
+ .ex {
+	text-align: center;
+}
+.ex .listWrap {
+	margin: 0px auto;
+	padding: 50px 0;
+	width: 200px; 	/* required */
+	height: 100px; 	/* required */
+}
+.ex .list li {
+	width: 200px; 	/* required */
+	height: 100px; 	/* required */
+}
+.ex .list li div {
+	width: 100%;
+	height: 100%;
+	line-height: 100px;
+	text-align: center;
+	font-size: 30px;
+	color: #fff;
+}
+.ex .btns {
+	text-align: center;
+}
+.ex .btns button {
+	width: 50px;
+	margin-top: 6px;
+	padding-top: 4px;
+	padding-bottom: 4px;
+	background: #efefef;
+	border: 1px solid #b3b3b3;
+	border-radius: 2px;
+	letter-spacing: -1px;
+}
+.ex .section-6 .listWrap {
+	overflow: visible;
+}
