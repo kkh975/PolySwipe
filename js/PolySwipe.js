@@ -1,5 +1,4 @@
 /*!*
- * @method: polySwipe 플러그인
  * @autor: Blim - Koo Chi Hoon(kkh975@naver.com)
  * @license http://blim.mit-license.org/
  */
@@ -22,7 +21,7 @@
 		option.toNext = option.$toNext ? option.$toNext.toArray() : [];
 
 		return this.each( function(){
-			$( this ).data( 'polySwipe', new polySwipe( option ));
+			$( this ).data( 'polySwipe', new PolySwipe( option ));
 		});
 	};
 
@@ -84,12 +83,11 @@
 /*!*
  * @method: polySwipe 함수
  */
-function polySwipe( __setting ){
+function PolySwipe( __setting ){
 
 	'use strict';
 
-	var MAX_TOUCH_MOVE = 100,
-		DISTANCE = 100,
+	var BASE_DISTANCE = 100,
 		setting = null,
 		D_Wrap = null,
 		D_Plist = null,
@@ -173,15 +171,7 @@ function polySwipe( __setting ){
 		 * @method: DOM에서 배열변환
 		 */
 		dom2Array: function( _dom ){
-			var return_arr = [],
-				len = 0,
-				i = 0;
-
-			for ( i = 0; i < _dom.length; i++ ){
-				return_arr.push( _dom[ i ] );
-			};
-
-			return return_arr;
+			return _dom.length > 0 ? Array.prototype.slice.call( _dom ) : [ _dom ];
 		},
 
 		/**
@@ -196,6 +186,12 @@ function polySwipe( __setting ){
 		 * @return: {Boolean or String}
 		 */
 		getCssPrefix: function(){
+			/*TRANSITIONENDEVENT_VENDORS = [
+				'transitionEnd',
+				'transitionend',
+				'otransitionend',
+				'oTransitionEnd',
+				'webkitTransitionEnd' ]*/
 			var transitionsCss = [ '-webkit-transition', 'transition' ],
 				transformsCss = [ '-webkit-transform', 'transform' ],
 				transitionsJs = [ 'webkitTransition', 'transition' ],
@@ -229,7 +225,7 @@ function polySwipe( __setting ){
 		},
 
 		/**
-		 * @method: 전체 애니메이션 설정
+		 * @method: 전체 위치 설정
 		 */
 		setListTransition: function( _speed, _add_angle, _is_set ){
 			var angle = poly_Rotate,
@@ -304,7 +300,7 @@ function polySwipe( __setting ){
 		/**
 		 * @method: 변수 초기화
 		 */
-		setInitVar: function(){
+		setInitVaiable: function(){
 			touchEvents.is_touch_start = false;
 			touchEvents.touch_start_x = 0;
 			touchEvents.touch_start_y = 0;
@@ -315,8 +311,8 @@ function polySwipe( __setting ){
 		 * @method: 이전으로 이동가능한가
 		 */
 		canPrevMove: function(){
-
-			if ( !setting.loop && getPrevIdx() === -1 ){ // 루프가 아니면서 가장자리에 있을때
+			// 루프가 아니면서 가장자리에 있을때
+			if ( !setting.loop && getPrevIdx() === -1 ){ 
 				return false;
 			}
 
@@ -330,7 +326,8 @@ function polySwipe( __setting ){
 			var next_idx = getNextIdx(),
 				len = ( is_Loop_Len_2 ? list_Len - 2 : list_Len ) - 1;
 
-			if ( !setting.loop && ( next_idx === -1 || next_idx > len )){ // 루프가 아니면서 가장자리에 있을때
+			// 루프가 아니면서 가장자리에 있을때
+			if ( !setting.loop && ( next_idx === -1 || next_idx > len )){ 
 				return false;
 			}
 
@@ -342,7 +339,6 @@ function polySwipe( __setting ){
 		 * @param: {Object} 이벤트 객체
 		 */
 		setStart: function( e ){
-
 			if ( touchEvents.is_touch_start || is_Move ){
 				return false;
 			}
@@ -353,22 +349,6 @@ function polySwipe( __setting ){
 				touchEvents.is_touch_start = true;
 				touchEvents.touch_start_x = e.touches[ 0 ].pageX;
 				touchEvents.touch_start_y = e.touches[ 0 ].pageY;
-
-				if ( !setting.loop ){
-					touchEvents.touch_range_min = ( now_idx - len ) * poly_Angle;
-					touchEvents.touch_range_max = ( len - now_idx ) * poly_Angle;
-
-					if ( now_idx === 0 ){
-						touchEvents.touch_range_min = len * poly_Angle * -1;
-						touchEvents.touch_range_max = 0;
-					}
-
-					if ( now_idx === len ){
-						touchEvents.touch_range_min = 0;
-						touchEvents.touch_range_max = len * poly_Angle;
-					}
-				}
-
 				e.preventDefault();
 			}
 		},
@@ -379,19 +359,16 @@ function polySwipe( __setting ){
 		 */
 		setMove: function( e ){
 			var drag_dist = 0,
-				scroll_dist = 0,
-				is_to_next = false,
-				can_move = false;
+				scroll_dist = 0;
 
 			if ( touchEvents.is_touch_start && e.type === 'touchmove' && e.touches.length === 1 ){
 				drag_dist = e.touches[ 0 ].pageX - touchEvents.touch_start_x;	// 가로 이동 거리
 				scroll_dist = e.touches[ 0 ].pageY - touchEvents.touch_start_y;	// 세로 이동 거리
-				touchEvents.move_dx = ( drag_dist / list_Width ) * 100;		
-				is_to_next = touchEvents.move_dx < 0;
-				can_move = is_to_next ? touchEvents.canNextMove() : touchEvents.canPrevMove();	// 가로 이동 백분률
+				touchEvents.move_dx = ( drag_dist / list_Width ) * 100;			// 가로 이동 백분률
 
-				if ( Math.abs( drag_dist ) > Math.abs( scroll_dist ) && can_move ){ // 드래그길이가 스크롤길이 보다 클때
-					touchEvents.move_dx = Math.max( touchEvents.touch_range_min, Math.min( touchEvents.touch_range_max, touchEvents.move_dx ));
+				// 드래그길이가 스크롤길이 보다 클때
+				if ( Math.abs( drag_dist ) > Math.abs( scroll_dist )){ 
+					touchEvents.move_dx = Math.max( -BASE_DISTANCE, Math.min( BASE_DISTANCE, touchEvents.move_dx ));
 					helper.setListTransition( 0, touchEvents.move_dx );
 				}
 				
@@ -406,38 +383,22 @@ function polySwipe( __setting ){
 		setEnd: function( e ){
 			var over_touch = Math.abs( touchEvents.move_dx ) > setting.touchMinumRange,
 				is_to_next = touchEvents.move_dx < 0,
-				can_move = is_to_next ? touchEvents.canNextMove() : touchEvents.canPrevMove(),
-				time = 0,
-				move = 0,
-				angle = 0,
-				idx = 0;
-
-			if ( touchEvents.is_touch_start && e.type === 'touchend' && e.touches.length < 1 ){
-
+				can_move = is_to_next ? touchEvents.canNextMove() : touchEvents.canPrevMove();
+			
+			if ( touchEvents.is_touch_start && e.type === 'touchend' ){
 				if ( over_touch && can_move ){
-
-					// 이동한 인데스
-					move = touchEvents.move_dx / poly_Angle;
-					move = Math.abs( move );
-					move = Math.ceil( move );
-					move = is_to_next ? move * -1 : move;
-
-					// 해당 인덱스의 도착 거리
-					angle = move * poly_Angle;
-
-					idx = move % list_Len;		// 나머지를 인덱스로
-					idx = idx * -1;				// 인덱스 부호를 움직임 방향으로 
-					idx = idx > -1 ? idx : list_Len + idx;
-	
-					setIdx( getIdx() + idx );
+					is_Move = false;
+					is_to_next ? toNext() : toPrev();
 				} else {
-					time = setting.duration;
-					angle = 0;
+					helper.setListTransition( setting.duration, 0 );
 				}
 			}
 
-			helper.setListTransition( setting.duration, 0 );
-			touchEvents.setInitVar();
+			if ( e.type === 'touchcancel' ){
+				is_Move = false;
+			}
+			
+			touchEvents.setInitVaiable();
 		}
 	};
 
@@ -448,7 +409,8 @@ function polySwipe( __setting ){
 		var tmp_dom = null,
 			idx = 0;
 
-		// 플러그인에서 배열로 넘겨줄때 패스, javascrit로 바로 들어오면 dom2Array로..
+		// 플러그인에서 배열로 넘겨줄때 패스
+		// javascrit로 바로 들어오면 dom2Array
 		setting = helper.extend( default_Option, __setting );
 		D_Plist = helper.isArray( setting.wrap ) ? setting.wrap : helper.dom2Array( setting.wrap ); 
 		D_List = helper.isArray( setting.list ) ? setting.list : helper.dom2Array( setting.list ); 
@@ -514,7 +476,7 @@ function polySwipe( __setting ){
 
 		if ( D_To_Pages ){ // 페이징 이동
 			helper.setBtnEvent( D_To_Pages, setting.moveEvents, function( _idx ){
-				toSlide( _idx ); 
+				toSlide( _idx );
 			});
 		}
 
@@ -540,7 +502,7 @@ function polySwipe( __setting ){
 		D_Wrap.addEventListener( 'touchcancel', touchEvents.setEnd );
 		D_Plist.addEventListener( browser_Prefix.transitionsendJs, toSlideAnimateAfter, false );
 
-		while( --idx > -1 ){ 			
+		while( --idx > -1 ){ 
 			// 포커스시 애니메이션 on/off
 			D_List[ idx ].addEventListener( 'focus', stopSlideShow, false );
 			D_List[ idx ].addEventListener( 'blur', startSlideShow, false );
@@ -549,6 +511,7 @@ function polySwipe( __setting ){
 		return true;
 	}
 
+	// TODO
 	/**
 	 * @method: 초기화 스타일
 	 */
@@ -569,7 +532,16 @@ function polySwipe( __setting ){
 		poly_Rotate = -poly_Init_Angle;			// 회전각도
 		poly_Range = poly_Angle * list_Len;		// 각의 각도
 
-		// 사인 제 1법칙 적용
+		// 사인 제1법칙 적용
+		/*
+		 * 사인 법칙(law of sines)은 
+		 * 평면상의 일반적인 삼각형에서 성립하는 삼각형의 세 각의 사인함수와 변의 관계에 대한 법칙이다. 
+		 * 삼각형 ABC에서 각 A, B, C에 마주보는 변의 길이를 각각 a, b, c라고 하면, 다음 식이 성립한다.
+		 * (a / sinA) = (b / sinB) = (c / sinC) =2R
+		 * 여기에서 R은 삼각형 ABC의 외접원의 반지름의 길이이다. 
+		 * 이 공식을 이용하면, 
+		 * 어떤 삼각형의 두 각의 크기와 한 변의 길이를 알고 있을 때에 다른 두 변의 길이를 구할 수 있다.
+		 */
 		angle = poly_Init_Angle;
 		side_angle = ( 180 - poly_Angle ) / 2;
 		side_angle = Math.sin( helper.getRadius( 90 - side_angle ));
@@ -578,9 +550,8 @@ function polySwipe( __setting ){
 		poly_Radius = ( list_Width / Math.abs( side_angle )) / 2;
 		poly_Radius = Math.sqrt( Math.pow( poly_Radius, 2 ) - Math.pow( tmp_width, 2 ));
 
-		css_txt = 'background: #fff;'
-		D_Wrap.style.cssText = css_txt;
 		helper.setCss3( D_Wrap, 'perspective', ( list_Width * 2 ) + 'px' );
+		helper.setCss3( D_Wrap, 'user-select', 'none' );
 
 		css_txt = 'position: relative; ';
 		css_txt += 'width: 100%; ';
@@ -612,8 +583,6 @@ function polySwipe( __setting ){
 	 */
 	function destory(){
 		var idx = D_List.length;
-
-		D_Wrap.querySelector( 'style' ).removeAttribute( 'data-swipe' );
 
 		window.removeEventListener( 'load', setInitStyle, false );
 		D_Wrap.removeEventListener( 'touchstart', touchEvents.setStart );
@@ -650,7 +619,7 @@ function polySwipe( __setting ){
 	 * @method: 화면 리사이즈
 	 */
 	function refreshSize(){
-		list_Width = D_Wrap.offsetWidth;		
+		list_Width = D_Wrap.offsetWidth;
 	}
 
 	/**
@@ -741,7 +710,7 @@ function polySwipe( __setting ){
 			return false;
 		}
 
-		// 다이렉트 접근시 범위 초과이거나 같은 위치일때
+		// 루프이면서 길이가 2이면서 다이렉트 접근시 범위 초과이거나 같은 위치일때
 		if ( is_Loop_Len_2 && is_direct_access && ( _to_idx > 1 || _to_idx % 2 === now_idx % 2 )){
 			return false;
 		}
@@ -750,7 +719,6 @@ function polySwipe( __setting ){
 		if ( typeof _way === 'undefined' ){ 
 			_way = gap > 0 ? 'next' : 'prev';
 		} else {
-
 			if ( Math.abs( gap ) === list_Len - 1 ){ // toNext, toPrev일때 끝에서 끝 이동
 				gap = 1;
 			}
@@ -823,7 +791,7 @@ function polySwipe( __setting ){
 
 	if ( constructor()){
 
-		return { // 공개 함수
+		return {
 			startSlideShow: startSlideShow,
 			stopSlideShow: stopSlideShow,
 			refreshSize: refreshSize,
