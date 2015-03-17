@@ -10,35 +10,6 @@ body { min-width: 320px; font-family: Helvetica, sans-serif; font-size: 12px; co
 li, dd { list-style: none; }
 section, footer, address, main, header { display: block; }
 
-/* header */
-header.wrap-header {
-	padding: 10px 20px;
-	border-bottom: 1px solid #e5e5e5;
-}
-header.wrap-header h1 {
-	letter-spacing: -1px;
-	font-size: 24px;
-}
-header.wrap-header p {
-	margin-top: 10px;
-	line-height: 135%;
-}
-header.wrap-header p.nth-2 img {
-    width: 25px;
-	margin-top: 5px;
-	margin-right: 3px;
-}
-header.wrap-header a {
-	position: absolute;
-	top: 20px;
-}
-header.wrap-header a.to-en {
-	right: 40px;
-}
-header.wrap-header a.to-kr {
-	right: 20px;
-}
-
 /* footer */
 footer.wrap-footer {
 	clear: both;
