@@ -103,7 +103,8 @@ function SwipePoly( __setting ){
 		list_Width       = 0,
 		list_Len         = 0,
 		poly_Angle       = 0,	// 각 아이템의 중심점 각도
-		poly_Rotate      = 0,	// 회전각도
+		poly_Rotate      = 0,	// 현재위치
+		poly_Init_Angle  = 0,	// 시작각도
 		now_Idx          = 0,
 		to_Idx           = 0,
 		browser_Prefix   = {};
@@ -218,6 +219,19 @@ function SwipePoly( __setting ){
 				div_style = Ddiv.style;
 
 			return browser_Prefix.transitionsJs in div_style;
+		},
+
+		/**
+		 * @method: 현재 위치 알아오기
+		 */
+		getCss3TransformPos: function( _dom ){
+			var this_style = _dom.style,
+				css_txt = '';
+
+			css_txt = this_style[ browser_Prefix.transformsJs ];
+			css_txt = css_txt.substring( css_txt.lastIndexOf( '(' ) + 1, css_txt.lastIndexOf( 'deg' ));
+
+			return parseFloat( css_txt );
 		},
 
 		/**
@@ -512,17 +526,16 @@ function SwipePoly( __setting ){
 	 */
 	function setInitStyle(){
 		var css_txt = '',
-			angle = 0,
 			len = 0,
 			idx = 0,
 			i = 0;
 
 		list_Width = D_Wrap.offsetWidth;
 
-		poly_Angle   = 360 / list_Len;	// 각 아이템의 중심점 각도
-		poly_Rotate  = -poly_Angle / 2;	// 각 아이템의 중심점 각도의 절반을 회전각도로
+		poly_Angle      = 360 / list_Len;	// 각 아이템의 중심점 각도
+		poly_Rotate     = -poly_Angle / 2;	// 각 아이템의 중심점 각도의 절반을 시작각도로
+		poly_Init_Angle = -poly_Rotate;		// 시작 각도
 		
-		var angle    = -poly_Rotate;	// 시작 각도
 		var diameter = list_Width;		// 지름
 		var radius   = diameter / 2;	// 반지름
 
@@ -541,7 +554,6 @@ function SwipePoly( __setting ){
 		// 피타고라스의 정리로 z에 해당하는 길이 구함
 		var side2 = Math.sqrt( Math.pow( side1, 2 ) - Math.pow( radius, 2 ));
 
-
 		helper.setCss3( D_Wrap, 'perspective', ( list_Width * 2 ) + 'px' );
 		helper.setCss3( D_Wrap, 'user-select', 'none' );
 
@@ -552,6 +564,9 @@ function SwipePoly( __setting ){
 		helper.setCss3( D_Plist, 'transform-style', 'preserve-3d' );
 		helper.setCss3( D_Plist, 'backface-visibility', 'hidden' );
 		helper.setListTransition( 0, 0 );
+
+		// 아이템의 시작각도
+		var angle = -poly_Rotate;
 
 		for ( i = 0, len = list_Len; i < len; i++ ){
 			css_txt = 'position: absolute; ';
@@ -745,20 +760,24 @@ function SwipePoly( __setting ){
 	function toSlideAnimate( _gap, _time, _way ){
 		var gap = Math.abs( _gap ),
 			angle = ( _way === 'next' ? -1 * gap : gap ) * poly_Angle,
-			now_idx = getNowIdx(),
-			now_pos = helper.getCss3TransformPos( D_List[ now_idx ] );
+			now_pos = helper.getCss3TransformPos( D_Plist );
 
-		// TODO
-		// touch로 접근시
-		// 사용자가 빠르게 터치해서 이미 끝으로 도달 했을 시
-		if ( now_pos % poly_Rotate === 0 ){
-			toSlideAnimateAfter({
-				target: D_List[ now_idx ]
-			});
+		// 바로 접근 혹은 touch로 접근시, 사용자가 빠르게 터치해서 이미 끝으로 도달 했을 시
+		// 바로 접근하면 현재 위치와 저장된 현재 위치가 같음.
+		if ( Math.abs( now_pos % poly_Angle ) === Math.abs( poly_Init_Angle )){
+			if ( now_pos === poly_Rotate ){
+				helper.setListTransition( _time, angle, true );
+			} else {
+				poly_Rotate = now_pos;
+				toSlideAnimateAfter();
+			}
 		} else {
 			// swipe 탄력적으로
+			// 현재 턴 수에서 현재 위치를 알아야 함
 			// 거리:전체거리 = 남은거리(x):전체시간 -> 거리 * 전체시간 / 전체거리
-			_time = _time * ( BASE_ROTATE - Math.abs( now_pos ) ) / BASE_ROTATE;
+			now_pos = Math.abs( now_pos );
+			now_pos = now_pos - ( Math.floor( now_pos / poly_Angle ) * poly_Angle );
+			_time = _time * ( poly_Angle - now_pos ) / poly_Angle;
 
 			helper.setListTransition( _time, angle, true );
 		}
