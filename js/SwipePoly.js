@@ -189,15 +189,15 @@ function SwipePoly( __setting ){
 				'otransitionend',
 				'oTransitionEnd',
 				'webkitTransitionEnd' ]*/
-			var transitionsCss = [ '-webkit-transition', 'transition' ],
-				transformsCss = [ '-webkit-transform', 'transform' ],
-				transitionsJs = [ 'webkitTransition', 'transition' ],
-				transformsJs = [ 'webkitTransform', 'transform' ],
+			var transitionsCss   = [ '-webkit-transition', 'transition' ],
+				transformsCss    = [ '-webkit-transform', 'transform' ],
+				transitionsJs    = [ 'webkitTransition', 'transition' ],
+				transformsJs     = [ 'webkitTransform', 'transform' ],
 				transitionsendJs = [ 'webkitTransitionEnd', 'transitionend' ],
-				styles = window.getComputedStyle( document.body, '' ),
-				prefixCss = ( Array.prototype.slice.call( styles ).join('').match( /-(webkit|moz|ms|o)-/ ) || (styles.OLink === '' && [ '', 'o' ]))[ 1 ],
-				prefixJs = ( 'WebKit|Moz|MS|O' ).match( new RegExp('(' + prefixCss + ')', 'i' ))[ 1 ],
-				isWebkit = prefixCss === 'webkit';
+				styles           = window.getComputedStyle( document.body, '' ),
+				prefixCss        = ( Array.prototype.slice.call( styles ).join('').match( /-(webkit|moz|ms|o)-/ ) || (styles.OLink === '' && [ '', 'o' ]))[ 1 ],
+				prefixJs         = ( 'WebKit|Moz|MS|O' ).match( new RegExp('(' + prefixCss + ')', 'i' ))[ 1 ],
+				isWebkit         = prefixCss === 'webkit';
 
 			return {
 				'prefixCss': prefixCss,
@@ -288,7 +288,7 @@ function SwipePoly( __setting ){
 
 			while( --evt_idx > -1 ){
 				while( --idx > -1 ){
-					evt = helper.trim( evt_arr[ evt_idx ] );
+					evt = helper.trim( evt_arr[ evt_idx ]);
 
 					( function( __idx ){
 						_doms[ idx ].addEventListener( evt, function( e ){
@@ -421,14 +421,14 @@ function SwipePoly( __setting ){
 
 		// 플러그인에서 배열로 넘겨줄때 패스
 		// javascrit로 바로 들어오면 dom2Array
-		setting = helper.extend( default_Option, __setting );
-		D_Plist = helper.isArray( setting.wrap ) ? setting.wrap : helper.dom2Array( setting.wrap ); 
-		D_List = helper.isArray( setting.list ) ? setting.list : helper.dom2Array( setting.list ); 
+		setting    = helper.extend( default_Option, __setting );
+		D_Plist    = helper.isArray( setting.wrap ) ? setting.wrap : helper.dom2Array( setting.wrap ); 
+		D_List     = helper.isArray( setting.list ) ? setting.list : helper.dom2Array( setting.list ); 
 		D_To_Pages = helper.isArray( setting.pages ) ? setting.pages : helper.dom2Array( setting.pages );
 		D_To_Start = helper.isArray( setting.toStart ) ? setting.toStart : helper.dom2Array( setting.toStart );
-		D_To_Stop = helper.isArray( setting.toStop ) ? setting.toStop : helper.dom2Array( setting.toStop );
-		D_To_Prev = helper.isArray( setting.toPrev ) ? setting.toPrev : helper.dom2Array( setting.toPrev );
-		D_To_Next = helper.isArray( setting.toNext ) ? setting.toNext : helper.dom2Array( setting.toNext );
+		D_To_Stop  = helper.isArray( setting.toStop ) ? setting.toStop : helper.dom2Array( setting.toStop );
+		D_To_Prev  = helper.isArray( setting.toPrev ) ? setting.toPrev : helper.dom2Array( setting.toPrev );
+		D_To_Next  = helper.isArray( setting.toNext ) ? setting.toNext : helper.dom2Array( setting.toNext );
 		
 		browser_Prefix = helper.getCssPrefix();
 		list_Len = D_List.length;
