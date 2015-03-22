@@ -238,9 +238,7 @@ function SwipePoly( __setting ){
 		 * @method: 전체 위치 설정
 		 */
 		setListTransition: function( _speed, _add_angle, _is_set ){
-			var angle = poly_Rotate,
-				len = 0,
-				i = 0;
+			var angle = poly_Rotate;
 
 			if ( _add_angle ){
 				angle += _add_angle;
