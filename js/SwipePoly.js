@@ -395,6 +395,7 @@ function SwipePoly( __setting ){
 			
 			if ( touchEvents.is_touch_start && e.type === 'touchend' ){
 				if ( over_touch && can_move ){
+					// 이전이나 이후로 가려면 is_Move해제 후 이동
 					is_Move = false;
 					is_to_next ? toNext() : toPrev();
 				} else {
@@ -721,7 +722,7 @@ function SwipePoly( __setting ){
 		}
 
 		// toSlide 함수를 직접 들어왔을 시
-		if ( typeof _way === 'undefined' ){ 
+		if ( is_direct_access ){ 
 			_way = gap > 0 ? 'next' : 'prev';
 		} else {
 			if ( Math.abs( gap ) === list_Len - 1 ){ // toNext, toPrev일때 끝에서 끝 이동
